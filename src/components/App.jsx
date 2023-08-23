@@ -1,16 +1,60 @@
-export const App = () => {
-  return (
-    <div
-      style={{
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: 40,
-        color: '#010101'
-      }}
-    >
-      React homework template
-    </div>
-  );
-};
+import { Component } from 'react';
+import { Form } from './Form/Form';
+import { ContactsList } from './ContactsList/ContactsList';
+import { Filter } from './Filter/Filter';
+
+export class App extends Component {
+  state = {
+    contacts: [],
+    filter: '',
+  };
+
+  hendleSubmit = newContact => {
+    const isExist = this.state.contacts.find(
+      ({ name }) => name.toLowerCase() === newContact.name.toLowerCase()
+    );
+    if (isExist) {
+      alert('contact already exists');
+      return;
+    }
+    this.setState(prevState => ({
+      contacts: [...prevState.contacts, newContact],
+    }));
+  };
+
+  hendleDelitContact = idContact => {
+    this.setState(prevState => ({
+      contacts: prevState.contacts.filter(({ id }) => id !== idContact),
+    }));
+  };
+
+  hendleFilterdContacts = event => {
+    const { name, value } = event.target;
+    this.setState({ [name]: value });
+  };
+
+  getFilteredContacts = () => {
+    const { contacts, filter } = this.state;
+    const normalizeFilter = filter.toLowerCase();
+    return contacts.filter(({ name }) =>
+      name.toLowerCase().includes(normalizeFilter)
+    );
+  };
+
+  render() {
+    const FilteredContact = this.getFilteredContacts();
+    return (
+      <div>
+        <h1>Phonebook</h1>
+        <Form onSubmit={this.hendleSubmit} />
+
+        <h2>Filter Contacts</h2>
+        <Filter filterContact={this.hendleFilterdContacts} />
+        <ContactsList
+          contacts={FilteredContact}
+          deleteContacts={this.hendleDelitContact}
+        />
+      </div>
+    );
+  }
+}
