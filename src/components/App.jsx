@@ -2,12 +2,30 @@ import { Component } from 'react';
 import { Form } from './Form/Form';
 import { ContactsList } from './ContactsList/ContactsList';
 import { Filter } from './Filter/Filter';
+import storage from '../utils/storage';
+
+const LOCALSTORAGE_KEY = 'contacts';
 
 export class App extends Component {
   state = {
     contacts: [],
     filter: '',
   };
+
+  componentDidMount() {
+    const contacts = storage.load(LOCALSTORAGE_KEY);
+    if (contacts) {
+      this.setState({ contacts });
+    }
+  }
+
+  componentDidUpdate(_, prevState) {
+    const { contacts } = this.state;
+
+    if (prevState.contacts !== contacts) {
+      storage.save(LOCALSTORAGE_KEY, contacts);
+    }
+  }
 
   hendleSubmit = newContact => {
     const isExist = this.state.contacts.find(
